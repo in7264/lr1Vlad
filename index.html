@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шифри</title>
+    <style>
+        .tabcontent {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <button class="tablink" onclick="openTab('Substitution')">Шифр заміни</button>
+        <button class="tablink" onclick="openTab('Transposition')">Шифр перестановки</button>
+    </div>
+
+    <div id="Substitution" class="tabcontent">
+        <h2>Шифр заміни (Цезаря)</h2>
+        <label for="inputTextSub">Введіть текст:</label>
+        <input type="text" id="inputTextSub">
+        <br>
+        <label for="shiftSub">Зсув:</label>
+        <input type="number" id="shiftSub" value="3">
+        <br>
+        <button onclick="encrypt('Substitution')">Зашифрувати</button>
+        <button onclick="decrypt('Substitution')">Розшифрувати</button>
+        <br>
+        <label for="outputTextSub">Текст:</label>
+        <textarea id="outputTextSub" rows="4" cols="50" readonly></textarea>
+    </div>
+
+    <div id="Transposition" class="tabcontent">
+        <h2>Інший шифр перестановки</h2>
+        <label for="inputTextOtherTrans">Введіть текст:</label>
+        <input type="text" id="inputTextOtherTrans">
+        <br>
+        <label for="keyOtherTrans">Ключ:</label>
+        <input type="text" id="keyOtherTrans" value="KEY">
+        <br>
+        <button onclick="encrypt('OtherTransposition')">Зашифрувати</button>
+        <button onclick="decrypt('OtherTransposition')">Розшифрувати</button>
+        <br>
+        <label for="outputTextOtherTrans">Текст:</label>
+        <textarea id="outputTextOtherTrans" rows="4" cols="50" readonly></textarea>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            document.getElementById(tabName).style.display = "block";
+        }
+
+        function encrypt(tabName) {
+            var inputText, shift, key, outputText;
+
+            if (tabName === 'Substitution') {
+                inputText = document.getElementById("inputTextSub").value;
+                shift = parseInt(document.getElementById("shiftSub").value);
+                outputText = document.getElementById("outputTextSub");
+                outputText.value = caesarCipher(inputText, shift);
+            } else if (tabName === 'OtherTransposition') {
+                inputText = document.getElementById("inputTextOtherTrans").value;
+                key = document.getElementById("keyOtherTrans").value;
+                outputText = document.getElementById("outputTextOtherTrans");
+                outputText.value = transposeCipher(inputText, key);
+            }
+        }
+
+        function decrypt(tabName) {
+            var inputText, shift, key, outputText;
+
+            if (tabName === 'Substitution') {
+                inputText = document.getElementById("inputTextSub").value;
+                shift = parseInt(document.getElementById("shiftSub").value);
+                outputText = document.getElementById("outputTextSub");
+                outputText.value = caesarCipher(inputText, -shift);
+            } else if (tabName === 'OtherTransposition') {
+                inputText = document.getElementById("inputTextOtherTrans").value;
+                key = document.getElementById("keyOtherTrans").value;
+                outputText = document.getElementById("outputTextOtherTrans");
+                outputText.value = transposeDecipher(inputText, key);
+            }
+        }
+
+        function caesarCipher(text, shift) {
+            var result = "";
+
+            for (var i = 0; i < text.length; i++) {
+                var charCode = text.charCodeAt(i);
+
+                if (charCode >= 65 && charCode <= 90) { // uppercase letters
+                    result += String.fromCharCode((charCode - 65 + shift + 26) % 26 + 65);
+                } else if (charCode >= 97 && charCode <= 122) { // lowercase letters
+                    result += String.fromCharCode((charCode - 97 + shift + 26) % 26 + 97);
+                } else {
+                    result += text[i]; // non-alphabetic characters
+                }
+            }
+
+            return result;
+        }
+
+        function transposeCipher(text, key) {
+            var keyLength = key.length;
+            var numRows = Math.ceil(text.length / keyLength);
+
+            var matrix = new Array(numRows);
+            for (var i = 0; i < numRows; i++) {
+                matrix[i] = new Array(keyLength);
+            }
+
+            var index = 0;
+
+            for (var row = 0; row < numRows; row++) {
+                for (var col = 0; col < keyLength; col++) {
+                    matrix[row][col] = text.charAt(index) || '';
+                    index++;
+                }
+            }
+
+            var result = "";
+
+            for (var col = 0; col < keyLength; col++) {
+                for (var row = 0; row < numRows; row++) {
+                    result += matrix[row][col] || '';
+                }
+            }
+
+            return result;
+        }
+
+        function transposeDecipher(text, key) {
+            var keyLength = key.length;
+            var numRows = Math.ceil(text.length / keyLength);
+
+            var matrix = new Array(numRows);
+            for (var i = 0; i < numRows; i++) {
+                matrix[i] = new Array(keyLength);
+            }
+
+            var index = 0;
+
+            for (var col = 0; col < keyLength; col++) {
+                for (var row = 0; row < numRows; row++) {
+                    matrix[row][col] = text.charAt(index) || '';
+                    index++;
+                }
+            }
+
+            var result = "";
+
+            for (var row = 0; row < numRows; row++) {
+                for (var col = 0; col < keyLength; col++) {
+                    result += matrix[row][col] || '';
+                }
+            }
+
+            return result;
+        }
+    </script>
+
+</body>
+</html>
